@@ -5,8 +5,7 @@ from flask_cors import CORS
 import os
 import json
 from datetime import datetime
-from task import Task, Priority, Status  # This should now work with task.py in the same directory
-
+from task import Task, Priority, Status 
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 # MongoDB Configuration
@@ -63,15 +62,9 @@ def save_tasks():
         return jsonify({'message': 'Tasks saved successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-
-
-
 @app.route('/')
 def serve_static():
     return send_from_directory('static', 'index.html')
-
-#2)To view all the tasks 
 @app.route('/api/tasks', methods=['GET'])
 def view_tasks():
     try:
@@ -79,14 +72,11 @@ def view_tasks():
         priority = request.args.get('priority')
         sort_by = request.args.get('sort_by', 'priority')
         sort_order = int(request.args.get('sort_order', '-1'))
-        
         query = {}
         if status:
             query['status'] = status
         if priority:
             query['priority'] = priority
-
-
         # Define sort key
         sort_key = {
             'priority': 'priority',
@@ -119,9 +109,6 @@ def get_task(task_id):
         return jsonify({"error": "Task not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-#3)to update a task by id
 
 @app.route('/api/tasks/<task_id>', methods=['PUT'])
 def update_task(task_id):
@@ -175,7 +162,6 @@ def complete_task(task_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#1)To add a new task
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     try:
@@ -206,8 +192,6 @@ def add_task():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# 4)Delete the task
 @app.route('/api/tasks/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     try:
