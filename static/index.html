@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Task Manager</h1>
+            <div class="header-actions">
+                <button class="add-task-btn" onclick="openModal()">
+                    <i class="fas fa-plus"></i> Add New Task
+                </button>
+                <button class="update-task-btn" onclick="openUpdateByIdModal()">
+                    <i class="fas fa-edit"></i> Update by ID
+                </button>
+                <button class="delete-task-btn" onclick="openDeleteByIdModal()">
+                    <i class="fas fa-trash"></i> Delete by ID
+                </button>
+            </div>
+        </div>
+          <!-- Enhanced filters section -->
+          <div class="filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select class="filter-select" id="statusFilter" onchange="filterAndSortTasks()">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priorityFilter">Priority:</label>
+                <select class="filter-select" id="priorityFilter" onchange="filterAndSortTasks()">
+                    <option value="">All Priorities</option>
+                    <option value="High">High Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="Low">Low Priority</option>
+                </select>
+            </div>
+        </div>
+        <div class="tasks-container" id="tasksContainer">
+            <!-- Tasks will be dynamically added here -->
+        </div>
+    </div>
+    <!-- Task Details Modal -->
+    <div class="modal" id="taskDetailsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDetailsModal()">&times;</span>
+            <h2>Task Details</h2>
+            <div class="task-details">
+                <p><strong>ID:</strong> <span id="detailsId"></span></p>
+                <p><strong>Title:</strong> <span id="detailsTitle"></span></p>
+                <p><strong>Description:</strong> <span id="detailsDescription"></span></p>
+                <p><strong>Priority:</strong> <span id="detailsPriority"></span></p>
+                <p><strong>Status:</strong> <span id="detailsStatus"></span></p>
+                <p><strong>Created:</strong> <span id="detailsCreated"></span></p>
+                <p><strong>Last Updated:</strong> <span id="detailsUpdated"></span></p>
+            </div>
+        </div>
+    </div>
+    <!-- Add/Edit Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Task</h2>
+            <form id="taskForm" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" class="form-control" required maxlength="50">
+                    <div class="error-message" id="titleError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" class="form-control" required maxlength="250"></textarea>
+                    <div class="error-message" id="descriptionError"></div>
+                </div>
+                <!-- Replace the priority select dropdown in the Add/Edit Task Modal with this -->
+<div class="form-group">
+    <label>Priority (required)</label>
+    <div class="priority-options">
+        <div class="priority-option">
+            <input type="radio" id="highPriority" name="priority" value="High" required>
+            <label for="highPriority" class="priority-label high">
+                <i class="fas fa-exclamation-circle"></i>
+                High Priority
+            </label>
+        </div>
+        <div class="priority-option">
+            <input type="radio" id="mediumPriority" name="priority" value="Medium">
+            <label for="mediumPriority" class="priority-label medium">
+                <i class="fas fa-arrow-circle-up"></i>
+                Medium Priority
+            </label>
+        </div>
+        <div class="priority-option">
+            <input type="radio" id="lowPriority" name="priority" value="Low">
+            <label for="lowPriority" class="priority-label low">
+                <i class="fas fa-arrow-circle-down"></i>
+                Low Priority
+            </label>
+        </div>
+    </div>
+    <div class="error-message" id="priorityError"></div>
+</div>
+                <button type="submit" class="submit-btn">Save Task</button>
+            </form>
+        </div>
+    </div>
+    <!-- Update by ID Modal -->
+    <div class="modal" id="updateByIdModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeUpdateByIdModal()">&times;</span>
+            <h2>Update Task by ID</h2>
+            <form id="updateByIdForm" onsubmit="handleUpdateById(event)">
+                <div class="form-group">
+                    <label for="updateTaskId">Task ID</label>
+                    <div class="search-container">
+                        <input type="text" id="updateTaskId" class="form-control" required>
+                        <button type="button" onclick="fetchTaskById()" class="search-btn">
+                            <i class="fas fa-search"></i> Fetch
+                        </button>
+                    </div>
+                </div>
+                <div id="updateFormFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="updateTitle">Title</label>
+                        <input type="text" id="updateTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateDescription">Description</label>
+                        <textarea id="updateDescription" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="updatePriority">Priority</label>
+                        <select id="updatePriority" class="form-control" required>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateStatus">Status</label>
+                        <select id="updateStatus" class="form-control" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Update Task</button>
+                        <button type="button" class="cancel-btn" onclick="resetUpdateForm()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Delete Task by ID Modal -->
+<div class="modal" id="deleteByIdModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDeleteByIdModal()">&times;</span>
+        <h2>Delete Task by ID</h2>
+        <form id="deleteByIdForm" onsubmit="handleDeleteById(event)">
+            <div class="form-group">
+                <label for="deleteTaskId">Task ID</label>
+                <div class="search-container">
+                    <input type="text" id="deleteTaskId" class="form-control" required>
+                    <button type="button" onclick="deleteTaskById()" class="search-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+   
+           
+</div>
+</div>
+</div>
+
+    <div class="toast" id="toast"></div>
+    <script src="scripts.js"></script>
+</body>
+</html>
