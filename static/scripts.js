@@ -49,7 +49,7 @@ function renderTasks() {
     tasks.forEach(task => {
         const taskCard = document.createElement('div');
         taskCard.className = `task-card ${task.status === 'Completed' ? 'completed' : ''}`;
-        taskCard.setAttribute('data-task-id', task._id); // Add this line
+        taskCard.setAttribute('data-task-id', task._id); 
         
         taskCard.innerHTML = `
             <div class="task-header">
@@ -174,30 +174,7 @@ async function deleteTask(id) {
         showToast('Error deleting task', 'error');
     }
 }
-// Mark task as completed
-async function markTaskCompleted(id) {
-    try {
-        const response = await fetch(`${API_URL}/tasks/status/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                status: 'Completed'
-            })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            showToast(data.message, 'success');
-            fetchTasks();
-        } else {
-            showToast(data.error || 'Error updating task', 'error');
-        }
-    } catch (error) {
-        showToast('Error updating task', 'error');
-    }
-    await saveTasks();
-}
+
 // Edit task
 async function editTask(event) {
     const taskCard = event.currentTarget.closest('.task-card');
@@ -211,8 +188,6 @@ async function editTask(event) {
             document.getElementById('taskId').value = task._id;
             document.getElementById('title').value = task.title;
             document.getElementById('description').value = task.description;
-            //document.getElementById('priority').value = task.priority;
-            // Set the correct priority radio button
             const priorityInput = document.querySelector(`input[name="priority"][value="${task.priority}"]`);
             if (priorityInput) {
                 priorityInput.checked = true;
@@ -241,10 +216,8 @@ function showToast(message, type) {
         toast.style.opacity = '0';
     }, 3000);
 }
-// Add this to scripts.js
-// Update fetchTasks to include sorting
 
-// Update the markTaskCompleted function
+
 async function markTaskCompleted(id) {
     try {
         const response = await fetch(`${API_URL}/tasks/${id}/complete`, {
@@ -271,7 +244,6 @@ window.onclick = function(event) {
         closeDetailsModal();
     }
 }
-
 
 let currentUpdateId = null;
 async function openUpdateByIdModal() {

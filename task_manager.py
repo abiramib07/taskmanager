@@ -5,7 +5,7 @@ from flask_cors import CORS
 import os
 import json
 from datetime import datetime
-from task import Task, Priority, Status  # This should now work with task.py in the same directory
+from task import Task, Priority, Status  
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
@@ -64,14 +64,10 @@ def save_tasks():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-
-
-
 @app.route('/')
 def serve_static():
     return send_from_directory('static', 'index.html')
 
-#2)To view all the tasks 
 @app.route('/api/tasks', methods=['GET'])
 def view_tasks():
     try:
@@ -121,8 +117,6 @@ def get_task(task_id):
         return jsonify({"error": str(e)}), 500
 
 
-#3)to update a task by id
-
 @app.route('/api/tasks/<task_id>', methods=['PUT'])
 def update_task(task_id):
     try:
@@ -165,7 +159,7 @@ def complete_task(task_id):
         
         if result.modified_count:
             updated_task = tasks_collection.find_one({"_id": ObjectId(task_id)})
-            backup_to_json()  # Backup after completion
+            backup_to_json()  
             return jsonify({
                 "message": "Task marked as completed",
                 "task": serialize_task(updated_task)
@@ -175,7 +169,6 @@ def complete_task(task_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#1)To add a new task
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     try:
@@ -206,8 +199,6 @@ def add_task():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# 4)Delete the task
 @app.route('/api/tasks/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     try:
@@ -237,7 +228,7 @@ def validate_task_data(data, update=False):
     errors = []
     required_fields = ['title', 'description', 'priority']
     
-    if not update:  # Only check required fields for new tasks
+    if not update:  
         for field in required_fields:
             if field not in data:
                 errors.append(f"Missing required field: {field}")
@@ -247,23 +238,20 @@ def validate_task_data(data, update=False):
     
     return errors
 
-# Serve static files
+
 @app.route('/')
 def serve_frontend():
     return send_from_directory('frontend/static', 'index.html')
 
-# Add error handler
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Resource not found"}), 404
 
-
 if __name__ == '__main__':
-    # Ensure the MongoDB connection is working
     try:
         client.admin.command('ping')
         print("Successfully connected to MongoDB!")
-        restore_from_json()  # Restore data from backup if needed
+        restore_from_json()  
         app.run(debug=True, port=5000)
     except Exception as e:
         print(f"Error connecting to MongoDB: {e}")
